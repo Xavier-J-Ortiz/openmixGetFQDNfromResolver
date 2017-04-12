@@ -14,6 +14,9 @@ var handler = new OpenmixApplication({
 		//
 		'akamai_object_delivery' : {
 			prepend : true
+		},
+		'azure_front_door' : {
+			prepend : false
 		}
 	},
 	geo_order: ['asn', 'state', 'region', 'country', 'market'],
