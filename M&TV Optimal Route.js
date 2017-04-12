@@ -9,6 +9,11 @@ var handler = new OpenmixApplication({
 			cname: 'msv-xboxlive-com.c-0007.c-msedge.net'
 		},
 	},
+	conditional_hostname: {
+		// add an entry for the provider if it's cname is intended to prepend the requesting hostname.
+		//
+		'akamai_object_delivery' : 1
+	},
 	geo_order: ['asn', 'state', 'region', 'country', 'market'],
 	use_radar_availability_threshold: true,
 	use_sonar_availability_threshold: false,
@@ -124,20 +129,23 @@ function OpenmixApplication(settings) {
 			/** @type { !Object.<string, { health_score: { value:string }, availability_override:string}> } */
 			dataFusion = parseFusionData(request.getData('fusion')),
 			candidates,
+				// scrapes hostname
+				hostname = request.hostname_prefix,
 				candidateAliases,
-				allReasons,
+					allReasons,
 					decisionProvider,
-					decisionReasons = [],
+						decisionReasons = [],
 						decisionTtl = settings.default_settings.default_ttl,
-						radarAvailabilityThreshold,
+							radarAvailabilityThreshold,
 							sonarAvailabilityThreshold,
-							minRtt,
+								minRtt,
 								rttTpMix,
-								totalRtt = 0,
+									totalRtt = 0,
 									totalKbps = 0,
-									selectedCandidates,
+										selectedCandidates,
 										cname,
-										cnameOverride,
+											// set to no space to make sure that nothing gets added if provider is not to prepend the incoming hostname.
+											cnameOverride = '',
 											fallbackBehavior;
 
 		allReasons = {
@@ -379,10 +387,9 @@ function OpenmixApplication(settings) {
 		response.setTTL(decisionTtl);
 		response.setReasonCode(decisionReasons.join(','));
 
-		if (settings.conditional_hostname !== undefined && settings.conditional_hostname[request.hostname_prefix] !== undefined) {
-			// Confirm and translate the ISO country code to the numeric identifier
-			// and format it as a prefix to the cname
-			cnameOverride = settings.conditional_hostname[request.hostname_prefix] + '.';
+		if (settings.conditional_hostname !== undefined && settings.conditional_hostname[decisionProvider] !== undefined) {
+
+			cnameOverride = hostname + '.';
 		}
 
 		response.respond(decisionProvider, cnameOverride + settings.providers[decisionProvider].cname);
