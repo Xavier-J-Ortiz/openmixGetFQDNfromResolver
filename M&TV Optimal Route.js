@@ -385,10 +385,6 @@ function OpenmixApplication(settings) {
 			? selectedCandidates[decisionProvider].cname
 			: settings.providers[decisionProvider].cname;
 
-	//	response.respond(decisionProvider, cname);
-	//	response.setTTL(decisionTtl);
-	//	response.setReasonCode(decisionReasons.join(','));
-
 		if (settings.conditional_hostname !== undefined && settings.conditional_hostname[decisionProvider] !== undefined && settings.conditional_hostname[decisionProvider].prepend === true) {
 
 			cnameOverride = hostname + '.';
