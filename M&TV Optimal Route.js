@@ -12,7 +12,9 @@ var handler = new OpenmixApplication({
 	conditional_hostname: {
 		// add an entry for the provider if it's cname is intended to prepend the requesting hostname.
 		//
-		'akamai_object_delivery' : 1
+		'akamai_object_delivery' : {
+			prepend : true
+		}
 	},
 	geo_order: ['asn', 'state', 'region', 'country', 'market'],
 	use_radar_availability_threshold: true,
@@ -383,16 +385,18 @@ function OpenmixApplication(settings) {
 			? selectedCandidates[decisionProvider].cname
 			: settings.providers[decisionProvider].cname;
 
-		response.respond(decisionProvider, cname);
-		response.setTTL(decisionTtl);
-		response.setReasonCode(decisionReasons.join(','));
+	//	response.respond(decisionProvider, cname);
+	//	response.setTTL(decisionTtl);
+	//	response.setReasonCode(decisionReasons.join(','));
 
-		if (settings.conditional_hostname !== undefined && settings.conditional_hostname[decisionProvider] !== undefined) {
+		if (settings.conditional_hostname !== undefined && settings.conditional_hostname[decisionProvider] !== undefined && settings.conditional_hostname[decisionProvider].prepend === true) {
 
 			cnameOverride = hostname + '.';
 		}
 
 		response.respond(decisionProvider, cnameOverride + settings.providers[decisionProvider].cname);
+		response.setTTL(decisionTtl);
+		response.setReasonCode(decisionReasons.join(','));
 
 	};
 
